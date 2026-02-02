@@ -168,13 +168,14 @@ export default function ReceivedReportsPage() {
                   {/* Right Column: Image (if exists) */}
                   {report.imageId && (
                     <div className="w-full md:w-1/3 flex-shrink-0">
-                      <div className="rounded-xl overflow-hidden border-2 border-border h-full max-h-64 bg-black/50 flex items-center justify-center">
+                      <div className="rounded-xl overflow-hidden border-2 border-border h-full max-h-64 flex items-center justify-center bg-secondary/10">
                         <img
                           src={`/api/images/${report.imageId}`}
                           alt="Report evidence"
                           className="w-full h-full object-contain"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).parentElement!.style.display = 'none';
                           }}
                         />
                       </div>

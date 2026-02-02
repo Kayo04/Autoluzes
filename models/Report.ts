@@ -92,6 +92,13 @@ const ReportSchema = new Schema<IReport>(
 // Index for finding reports by vehicle owner
 ReportSchema.index({ vehicle: 1, createdAt: -1 });
 
+// Force model release in development to allow schema updates
+if (process.env.NODE_ENV === 'development') {
+    if (mongoose.models.Report) {
+        delete mongoose.models.Report;
+    }
+}
+
 const Report: Model<IReport> = mongoose.models.Report || mongoose.model<IReport>('Report', ReportSchema);
 
 export default Report;

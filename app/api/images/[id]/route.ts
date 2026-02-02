@@ -16,11 +16,11 @@ export async function GET(
             const { buffer, contentType, filename } = await getImage(id);
 
             // Create response with image data
-            return new NextResponse(buffer, {
+            // Convert Buffer to Uint8Array to satisfy Response BodyInit type
+            return new Response(new Uint8Array(buffer), {
                 headers: {
                     'Content-Type': contentType,
                     'Content-Length': buffer.length.toString(),
-                    'Content-Disposition': `inline; filename="${filename}"`,
                     'Cache-Control': 'public, max-age=31536000, immutable',
                 },
             });
