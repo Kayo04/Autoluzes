@@ -114,9 +114,9 @@ export default function Navbar() {
 
   const getNotificationText = (notification: Notification) => {
     switch (notification.type) {
-        case 'report_received': return tNotifications('newReport' as any, { plate: notification.report.plate });
-        case 'report_acknowledged': return tNotifications('reportAcknowledged' as any, { plate: notification.report.plate });
-        case 'report_resolved': return tNotifications('reportResolved' as any, { plate: notification.report.plate });
+        case 'report_received': return (tNotifications as any)('newReport', { plate: notification.report.plate });
+        case 'report_acknowledged': return (tNotifications as any)('reportAcknowledged', { plate: notification.report.plate });
+        case 'report_resolved': return (tNotifications as any)('reportResolved', { plate: notification.report.plate });
         default: return tNotifications('default');
     }
   };

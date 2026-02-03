@@ -1,0 +1,8 @@
+﻿components/Navbar.tsx(117,75): error TS2554: Expected 1 arguments, but got 2.
+components/Navbar.tsx(118,88): error TS2554: Expected 1 arguments, but got 2.
+components/Navbar.tsx(119,80): error TS2554: Expected 1 arguments, but got 2.
+i18n.ts(7,33): error TS2345: Argument of type '({ locale }: GetRequestConfigParams) => Promise<{ messages: any; }>' is not assignable to parameter of type '(params: GetRequestConfigParams) => RequestConfig | Promise<RequestConfig>'.
+  Type 'Promise<{ messages: any; }>' is not assignable to type 'RequestConfig | Promise<RequestConfig>'.
+    Type 'Promise<{ messages: any; }>' is not assignable to type 'Promise<RequestConfig>'.
+      Type '{ messages: any; }' is not assignable to type 'RequestConfig'.
+        Property 'locale' is missing in type '{ messages: any; }' but required in type '{ locale: string; }'.
