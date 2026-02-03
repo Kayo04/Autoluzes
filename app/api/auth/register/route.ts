@@ -18,12 +18,12 @@ export async function POST(request: NextRequest) {
 
         await dbConnect();
 
-        // Rate Limiting: 3 registrations per hour per IP
+        // Rate Limiting: 30 registrations per hour per IP
         const ip = request.headers.get('x-forwarded-for') || 'unknown';
         const rateLimitResult = await checkRateLimit(
             ip,
             'register',
-            3,
+            30,
             60 * 60 * 1000 // 1 hour
         );
 

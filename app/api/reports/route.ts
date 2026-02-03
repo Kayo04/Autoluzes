@@ -117,11 +117,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        // Rate Limiting: 5 reports per 10 minutes
+        // Rate Limiting: 30 reports per 10 minutes
         const rateLimitResult = await checkRateLimit(
             userId,
             'report_submit',
-            5,
+            30,
             10 * 60 * 1000 // 10 minutes
         );
 

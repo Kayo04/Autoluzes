@@ -17,12 +17,12 @@ export async function POST(request: NextRequest) {
 
         await dbConnect();
 
-        // Rate Limiting: 5 verification attempts per 15 minutes per IP
+        // Rate Limiting: 30 verification attempts per 15 minutes per IP
         const ip = request.headers.get('x-forwarded-for') || 'unknown';
         const rateLimitResult = await checkRateLimit(
             ip,
             'verify_code',
-            5,
+            30,
             15 * 60 * 1000 // 15 minutes
         );
 
