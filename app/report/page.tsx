@@ -42,7 +42,7 @@ export default function ReportPage() {
     setSuccess('');
 
     if (selectedLights.length === 0) {
-      setError('Please select at least one light');
+      setError(t('selectLightError'));
       return;
     }
 
@@ -113,24 +113,12 @@ export default function ReportPage() {
               <AlertTriangle className="w-8 h-8" />
             </div>
           <h1 className="text-4xl font-bold tracking-tight text-foreground">{t('title')}</h1>
-          <p className="mt-2 text-muted-foreground">Make reports easier and help safer roads</p>
+          <p className="mt-2 text-muted-foreground">{t('subtitle')}</p>
         </div>
 
         <div className="bg-card border border-border rounded-3xl p-6 md:p-8 shadow-sm animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
           <form onSubmit={handleSubmit} className="space-y-8">
-             {error && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-xl p-4 flex items-center animate-shake">
-                  <span className="mr-2">⚠️</span>
-                  {error}
-                </div>
-              )}
 
-              {success && (
-                <div className="bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl p-4 flex items-center animate-in fade-in slide-in-from-top-2">
-                  <span className="mr-2">🎉</span>
-                  {success}
-                </div>
-              )}
 
             {/* Plate Input */}
             <div className="space-y-3">
@@ -155,32 +143,47 @@ export default function ReportPage() {
               </div>
             </div>
 
-            {/* Light Selection */}
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-6">{t('selectLights')}</h2>
-              
-              <LightSelector 
-                selectedLights={selectedLights}
-                onLightsChange={setSelectedLights}
-                onImageUpload={setUploadedImage}
-                onDetectionMethodChange={setDetectionMethod}
-              />
-              {selectedLights.length > 0 ? (
-                <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                  <p className="text-primary font-medium flex items-center">
-                    <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2 font-bold">{selectedLights.length}</span>
-                    lights selected
-                  </p>
-                  <button type="button" onClick={() => setSelectedLights([])} className="text-xs text-muted-foreground hover:text-foreground underline">
-                    Clear all
-                  </button>
-                </div>
-              ) : (
-                 <div className="mt-6 p-4 bg-secondary/30 border border-dashed border-border rounded-2xl text-center">
-                     <p className="text-muted-foreground text-sm">Tap on the lights in the diagrams above to verify them.</p>
-                 </div>
-              )}
-            </div>
+      {/* Light Selection */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-6">{t('selectLights')}</h2>
+        
+        <LightSelector 
+          selectedLights={selectedLights}
+          onLightsChange={setSelectedLights}
+          onImageUpload={setUploadedImage}
+          onDetectionMethodChange={setDetectionMethod}
+        />
+        {selectedLights.length > 0 ? (
+          <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+            <p className="text-primary font-medium flex items-center">
+              <span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2 font-bold">{selectedLights.length}</span>
+              {t('lightsSelected')}
+            </p>
+            <button type="button" onClick={() => setSelectedLights([])} className="text-xs text-muted-foreground hover:text-foreground underline">
+              {t('clearAll')}
+            </button>
+          </div>
+        ) : (
+           <div className="mt-6 p-4 bg-secondary/30 border border-dashed border-border rounded-2xl text-center">
+               <p className="text-muted-foreground text-sm">{t('tapInstruction')}</p>
+           </div>
+        )}
+      </div>
+
+            {/* Status Messages */}
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-xl p-4 flex items-center animate-shake">
+                <span className="mr-2">⚠️</span>
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 rounded-xl p-4 flex items-center animate-in fade-in slide-in-from-top-2">
+                <span className="mr-2">🎉</span>
+                {success}
+              </div>
+            )}
 
             {/* Submit Button */}
             <button

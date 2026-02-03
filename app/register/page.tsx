@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from '@/lib/translations';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import { UserPlus, ArrowRight } from 'lucide-react';
+import { UserPlus, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RegisterPage() {
@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +35,7 @@ export default function RegisterPage() {
       if (!response.ok) {
         setError(data.error || 'Registration failed');
       } else {
-        router.push('/login');
+        router.push(`/verify?email=${encodeURIComponent(email)}`);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -108,18 +109,27 @@ export default function RegisterPage() {
                   <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5 ml-1">
                     {t('password')}
                   </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-xl border-border bg-secondary/50 px-4 py-3 text-foreground shadow-sm focus:border-primary focus:ring-primary sm:text-sm transition-all hover:bg-secondary"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="block w-full rounded-xl border-border bg-secondary/50 px-4 py-3 text-foreground shadow-sm focus:border-primary focus:ring-primary sm:text-sm transition-all hover:bg-secondary pr-10"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 

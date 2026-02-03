@@ -5,11 +5,16 @@ import dbConnect from '@/lib/mongodb';
 import Report from '@/models/Report';
 import Vehicle from '@/models/Vehicle';
 import User from '@/models/User';
+import Notification from '@/models/Notification';
 import { reportSchema } from '@/lib/validation';
 import { normalizePlate } from '@/lib/validation';
 import { LightType } from '@/models/Report';
+import { resend } from '@/lib/resend';
+import ReportReceivedEmail from '@/components/emails/ReportReceivedEmail';
+import React from 'react';
+import { checkRateLimit } from '@/lib/rateLimit';
 
-// GET reports for the authenticated user
+// GET reports with pagination and filtering
 export async function GET(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -21,20 +26,64 @@ export async function GET(request: NextRequest) {
         await dbConnect();
 
         const userId = (session.user as any).id;
+        const { searchParams } = new URL(request.url);
+        const type = searchParams.get('type');
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '10');
+        const skip = (page - 1) * limit;
 
+        // If specific type is requested (for "View All" pages)
+        if (type === 'received' || type === 'sent') {
+            let reports = [];
+            let total = 0;
+
+            if (type === 'received') {
+                const userVehicles = await Vehicle.find({ owner: userId });
+                const vehicleIds = userVehicles.map((v) => v._id);
+
+                total = await Report.countDocuments({ vehicle: { $in: vehicleIds } });
+                reports = await Report.find({ vehicle: { $in: vehicleIds } })
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .populate('vehicle')
+                    .lean();
+            } else {
+                total = await Report.countDocuments({ reporter: userId });
+                reports = await Report.find({ reporter: userId })
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .lean();
+            }
+
+            return NextResponse.json({
+                reports,
+                pagination: {
+                    total,
+                    pages: Math.ceil(total / limit),
+                    page,
+                    limit
+                }
+            });
+        }
+
+        // Dashboard view (returns limiting set of both)
         // Get user's vehicles
         const userVehicles = await Vehicle.find({ owner: userId });
         const vehicleIds = userVehicles.map((v) => v._id);
 
-        // Get reports received (reports for user's vehicles)
+        // Get reports received (limit 5 for dashboard)
         const reportsReceived = await Report.find({ vehicle: { $in: vehicleIds } })
             .sort({ createdAt: -1 })
+            .limit(5)
             .populate('vehicle')
             .lean();
 
-        // Get reports sent by user
+        // Get reports sent by user (limit 5 for dashboard)
         const reportsSent = await Report.find({ reporter: userId })
             .sort({ createdAt: -1 })
+            .limit(5)
             .lean();
 
         return NextResponse.json({
@@ -68,6 +117,24 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
+        // Rate Limiting: 5 reports per 10 minutes
+        const rateLimitResult = await checkRateLimit(
+            userId,
+            'report_submit',
+            5,
+            10 * 60 * 1000 // 10 minutes
+        );
+
+        if (!rateLimitResult.success) {
+            return NextResponse.json(
+                {
+                    error: 'Too many reports submitted. Please try again later.',
+                    retryAfter: rateLimitResult.resetAt
+                },
+                { status: 429 }
+            );
+        }
+
         // Normalize the plate
         const normalizedPlate = normalizePlate(validatedData.plate);
 
@@ -88,13 +155,36 @@ export async function POST(request: NextRequest) {
 
         // If vehicle found, send notification
         if (matchedVehicle) {
-            // TODO: Send email notification using Resend
-            // For now, just mark as notification sent
-            report.notificationSent = true;
-            await report.save();
+            // Create in-app notification
+            await Notification.create({
+                recipient: (matchedVehicle.owner as any)._id,
+                type: 'report_received',
+                report: report._id,
+                read: false,
+            });
 
-            // Send notification (placeholder - will implement email later)
-            console.log(`Notification should be sent to ${(matchedVehicle.owner as any).email}`);
+            // Send email notification using Resend
+            try {
+                await resend.emails.send({
+                    from: 'Autoluzes <onboarding@resend.dev>', // Use default Resend testing usage or configured domain
+                    to: (matchedVehicle.owner as any).email,
+                    subject: `⚠️ Alert: Report Received for ${normalizedPlate}`,
+                    react: React.createElement(ReportReceivedEmail, {
+                        plate: normalizedPlate,
+                        reporterName: user.name,
+                        reportId: report._id.toString(),
+                        vehicleMake: matchedVehicle.make,
+                        vehicleModel: matchedVehicle.model,
+                        selectedLights: validatedData.selectedLights,
+                    }),
+                });
+                console.log(`Email sent to ${(matchedVehicle.owner as any).email}`);
+                report.notificationSent = true;
+                await report.save();
+            } catch (emailError) {
+                console.error('Failed to send email:', emailError);
+                // Don't fail the request if email fails, just log it
+            }
         }
 
         return NextResponse.json(
@@ -117,6 +207,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json({
+            error: error.message || 'Internal server error',
+            details: error.toString()
+        }, { status: 500 });
     }
 }

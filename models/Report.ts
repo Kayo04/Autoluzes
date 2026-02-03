@@ -28,6 +28,8 @@ export interface IReport extends Document {
     aiConfidence?: number; // AI confidence score (0-1)
     photoId?: string; // GridFS file ID (deprecated, use imageId)
     notificationSent: boolean;
+    status: 'pending' | 'acknowledged' | 'resolved';
+    ownerResponse?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -82,6 +84,15 @@ const ReportSchema = new Schema<IReport>(
         notificationSent: {
             type: Boolean,
             default: false,
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'acknowledged', 'resolved'],
+            default: 'pending',
+            index: true,
+        },
+        ownerResponse: {
+            type: String,
         },
     },
     {

@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from '@/lib/translations';
 import Navbar from '@/components/Navbar';
-import { AlertTriangle, Calendar, User, Car, ArrowLeft, Loader2, Image as ImageIcon } from 'lucide-react';
+import { AlertTriangle, Calendar, User, Car, ArrowLeft, Loader2, Image as ImageIcon, CheckCircle, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 interface Report {
@@ -14,11 +14,17 @@ interface Report {
   selectedLights: string[];
   createdAt: string;
   reportedBy?: {
+    _id: string;
     name: string;
     email: string;
   };
   imageId?: string;
   detectionMethod?: string;
+  status: 'pending' | 'acknowledged' | 'resolved';
+  ownerResponse?: string;
+  vehicle?: {
+    owner: string; // ID of the owner
+  };
 }
 
 export default function ReportDetailsPage() {
@@ -31,6 +37,7 @@ export default function ReportDetailsPage() {
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [acnkowledgeLoading, setAcknowledgeLoading] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -67,6 +74,32 @@ export default function ReportDetailsPage() {
     }
   };
 
+  const handleStatusUpdate = async (newStatus: 'acknowledged' | 'resolved', message?: string) => {
+    setAcknowledgeLoading(true);
+    try {
+      const res = await fetch(`/api/reports/${params.id}/acknowledge`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus, message }),
+      });
+
+      if (res.ok) {
+        // Refresh report data
+        fetchReport();
+      } else {
+        const error = await res.json();
+        alert(error.error || 'Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('An error occurred');
+    } finally {
+      setAcknowledgeLoading(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-PT', {
@@ -77,6 +110,9 @@ export default function ReportDetailsPage() {
       minute: '2-digit',
     });
   };
+
+  const isOwner = session?.user && report?.vehicle?.owner === (session.user as any).id;
+  // const isReporter = session?.user && report?.reportedBy?._id === (session.user as any).id; // Unused for now
 
   if (loading) {
     return (
@@ -117,20 +153,92 @@ export default function ReportDetailsPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-xl">
-              <AlertTriangle className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                Report Details
-              </h1>
-              <p className="mt-1 text-muted-foreground">
-                Complete information about this report
-              </p>
-            </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+             <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <AlertTriangle className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                    Report Details
+                  </h1>
+                  <p className="mt-1 text-muted-foreground">
+                    Complete information about this report
+                  </p>
+                </div>
+             </div>
+             
+             {/* Status Badge */}
+             <div className={`px-4 py-2 rounded-full font-medium flex items-center gap-2 self-start md:self-center ${
+               report?.status === 'resolved' 
+                 ? 'bg-green-500/10 text-green-500 border border-green-500/20' 
+                 : report?.status === 'acknowledged'
+                 ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                 : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
+             }`}>
+               {report?.status === 'resolved' && <CheckCircle className="w-4 h-4" />}
+               {report?.status === 'acknowledged' && <CheckCircle className="w-4 h-4" />}
+               {report?.status === 'pending' && <AlertTriangle className="w-4 h-4" />}
+               <span className="capitalize">{report?.status || 'Pending'}</span>
+             </div>
           </div>
         </div>
+
+        {/* Action Section for Owner */}
+        {isOwner && report?.status !== 'resolved' && (
+           <div className="bg-card border border-border rounded-2xl p-6 mb-6 shadow-sm ring-1 ring-primary/20">
+             <h2 className="text-xl font-bold text-foreground mb-4">Action Required</h2>
+             <p className="text-muted-foreground mb-6">
+                Please acknowledge this report to let the reporter know you've seen it.
+             </p>
+             <div className="flex flex-wrap gap-4">
+               {report?.status === 'pending' && (
+                 <button
+                   onClick={() => handleStatusUpdate('acknowledged', 'Thanks, I will fix it!')}
+                   disabled={acnkowledgeLoading}
+                   className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors"
+                 >
+                   {acnkowledgeLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+                   Mark as Seen
+                 </button>
+               )}
+               <button
+                 onClick={() => handleStatusUpdate('resolved', 'Issue resolved, thanks!')}
+                 disabled={acnkowledgeLoading}
+                 className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors"
+               >
+                 {acnkowledgeLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+                 Mark as Resolved
+               </button>
+             </div>
+           </div>
+        )}
+
+        {/* Status Thread / Owner Response */}
+        {(report?.status !== 'pending' || report?.ownerResponse) && (
+             <div className="bg-secondary/30 border border-border rounded-2xl p-6 mb-6">
+               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                 <MessageSquare className="w-5 h-5" />
+                 Report Status
+               </h2>
+               <div className="flex items-start gap-4">
+                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                    O
+                 </div>
+                 <div>
+                   <div className="font-semibold">{report?.status === 'resolved' ? 'Issue Resolved' : 'Acknowledged'}</div>
+                   <div className="text-sm text-muted-foreground mb-2">
+                      by <span className="font-medium text-foreground">{isOwner ? 'You' : 'Vehicle Owner'}</span>
+                   </div>
+                   {report?.ownerResponse && (
+                     <div className="bg-card p-3 rounded-lg border border-border text-foreground inline-block">
+                       "{report.ownerResponse}"
+                     </div>
+                   )}
+                 </div>
+               </div>
+             </div>
+        )}
 
         {/* Report Content */}
         <div className="space-y-6">

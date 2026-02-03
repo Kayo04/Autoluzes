@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IUser } from './User';
 
-export interface IVehicle extends Document {
+export interface IVehicle extends Omit<Document, 'model'> {
     _id: mongoose.Types.ObjectId;
     plate: string; // Normalized (uppercase, no special chars)
     make?: string;
@@ -48,6 +48,13 @@ const VehicleSchema = new Schema<IVehicle>(
 
 // Compound index for unique plate per owner
 VehicleSchema.index({ plate: 1, owner: 1 }, { unique: true });
+
+// Force model release in development to allow schema updates
+if (process.env.NODE_ENV === 'development') {
+    if (mongoose.models.Vehicle) {
+        delete mongoose.models.Vehicle;
+    }
+}
 
 const Vehicle: Model<IVehicle> = mongoose.models.Vehicle || mongoose.model<IVehicle>('Vehicle', VehicleSchema);
 

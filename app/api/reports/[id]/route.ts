@@ -7,8 +7,9 @@ import User from '@/models/User';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
+    const params = await props.params;
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
@@ -17,7 +18,9 @@ export async function GET(
 
         await connectDB();
 
-        const report = await Report.findById(params.id).lean();
+        const report = await Report.findById(params.id)
+            .populate('vehicle')
+            .lean();
 
         if (!report) {
             return NextResponse.json({ error: 'Report not found' }, { status: 404 });
@@ -25,8 +28,8 @@ export async function GET(
 
         // Get reporter information
         let reportedBy = null;
-        if (report.reportedBy) {
-            const reporter = await User.findById(report.reportedBy).select('name email').lean();
+        if (report.reporter) {
+            const reporter = await User.findById(report.reporter).select('name email').lean();
             reportedBy = reporter;
         }
 

@@ -12,6 +12,41 @@
         "logout": "Logout",
         "myVehicles": "My Vehicles"
     },
+    "home": {
+        "features": {
+            "communitySafety": {
+                "title": "Community Safety",
+                "description": "Help fellow drivers stay safe by alerting them about faulty lights before it becomes a hazard."
+            },
+            "instantNotifications": {
+                "title": "Instant Notifications",
+                "description": "Get notified immediately when someone reports an issue with your vehicle's lights."
+            },
+            "neighborlyCare": {
+                "title": "Neighborly Care",
+                "description": "Not about fines or snitching - it's about looking out for each other on the road."
+            }
+        },
+        "trust": {
+            "title": "Why join Autoluzes?",
+            "point1": "Free forever for all drivers",
+            "point2": "Anonymous reporting system",
+            "point3": "Real-time alerts via email",
+            "point4": "Contribute to safer roads",
+            "liveActivity": "Live Activity",
+            "testimonial": "Just received an alert about my brake light. Fixed it immediately. Thanks!"
+        }
+    },
+    "notifications": {
+        "title": "Notifications",
+        "markAllRead": "Mark all as read",
+        "noNotifications": "No notifications yet",
+        "viewAll": "View all notifications",
+        "newReport": "New report for {plate}",
+        "reportAcknowledged": "Report acknowledged for {plate}",
+        "reportResolved": "Issue resolved for {plate}",
+        "default": "New notification"
+    },
     "hero": {
         "title": "Help Keep Roads Safe",
         "subtitle": "Alert other drivers about blown lights. Get notified when your vehicle needs attention.",
@@ -36,7 +71,11 @@
         "noAccount": "Don't have an account?",
         "hasAccount": "Already have an account?",
         "registerLink": "Register here",
-        "loginLink": "Login here"
+        "loginLink": "Login here",
+        "welcome": "Welcome back to Autoluzes",
+        "signingIn": "Signing in...",
+        "invalidCredentials": "Invalid email or password",
+        "genericError": "An error occurred. Please try again."
     },
     "vehicle": {
         "addTitle": "Add Vehicle",
@@ -87,7 +126,12 @@
         "submitButton": "Submit Report",
         "submitting": "Submitting...",
         "success": "Report submitted successfully!",
-        "error": "Error submitting report. Please try again."
+        "error": "Error submitting report. Please try again.",
+        "subtitle": "Make reports easier and help safer roads",
+        "selectLightError": "Please select at least one light",
+        "lightsSelected": "lights selected",
+        "clearAll": "Clear all",
+        "tapInstruction": "Tap on the lights in the diagrams above to verify them."
     },
     "lights": {
         "left-headlight": "Left Headlight",

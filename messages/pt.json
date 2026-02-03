@@ -12,6 +12,41 @@
         "logout": "Sair",
         "myVehicles": "Meus Veículos"
     },
+    "home": {
+        "features": {
+            "communitySafety": {
+                "title": "Segurança Comunitária",
+                "description": "Ajude outros condutores a manterem-se seguros avisando-os sobre luzes avariadas."
+            },
+            "instantNotifications": {
+                "title": "Notificações Instantâneas",
+                "description": "Seja notificado imediatamente quando alguém reportar um problema com as suas luzes."
+            },
+            "neighborlyCare": {
+                "title": "Espírito de Vizinhança",
+                "description": "Não é sobre multas - é sobre protegermo-nos uns aos outros na estrada."
+            }
+        },
+        "trust": {
+            "title": "Porquê o Autoluzes?",
+            "point1": "Gratuito para sempre",
+            "point2": "Sistema de reporte anónimo",
+            "point3": "Alertas em tempo real via email",
+            "point4": "Contribua para estradas mais seguras",
+            "liveActivity": "Atividade Recente",
+            "testimonial": "Acabei de receber um alerta sobre o meu stop. Resolvi logo. Obrigado!"
+        }
+    },
+    "notifications": {
+        "title": "Notificações",
+        "markAllRead": "Marcar tudo como lido",
+        "noNotifications": "Sem notificações",
+        "viewAll": "Ver todas",
+        "newReport": "Novo reporte para {plate}",
+        "reportAcknowledged": "Reporte visto para {plate}",
+        "reportResolved": "Problema resolvido para {plate}",
+        "default": "Nova notificação"
+    },
     "hero": {
         "title": "Ajude a Manter as Estradas Seguras",
         "subtitle": "Avise outros condutores sobre luzes fundidas. Seja avisado quando o seu veículo precisar de atenção.",
@@ -36,7 +71,11 @@
         "noAccount": "Não tem conta?",
         "hasAccount": "Já tem conta?",
         "registerLink": "Registe-se aqui",
-        "loginLink": "Entre aqui"
+        "loginLink": "Entre aqui",
+        "welcome": "Bem-vindo de volta ao Autoluzes",
+        "signingIn": "A entrar...",
+        "invalidCredentials": "Email ou palavra-passe inválidos",
+        "genericError": "Ocorreu um erro. Tente novamente."
     },
     "vehicle": {
         "addTitle": "Adicionar Veículo",
@@ -81,9 +120,13 @@
         "photoLabel": "Foto (Opcional)",
         "photoWarning": "Apenas tire fotos se for seguro fazê-lo",
         "submitButton": "Enviar Reporte",
-        "submitting": "A enviar...",
         "success": "Reporte enviado com sucesso!",
-        "error": "Erro ao enviar reporte. Tente novamente."
+        "error": "Erro ao enviar reporte. Tente novamente.",
+        "subtitle": "Facilite as denúncias e ajude a tornar as estradas mais seguras",
+        "selectLightError": "Selecione pelo menos uma luz",
+        "lightsSelected": "luzes selecionadas",
+        "clearAll": "Limpar tudo",
+        "tapInstruction": "Toque nas luzes nos diagramas acima para validá-las."
     },
     "lights": {
         "left-headlight": "Farol Esquerdo",

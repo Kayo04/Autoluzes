@@ -25,6 +25,11 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('No user found with this email');
                 }
 
+                if (!user.isVerified) {
+                    // Check if they need verification
+                    throw new Error(`Email not verified. Please verify your email at /verify?email=${encodeURIComponent(user.email)}`);
+                }
+
                 const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
                 if (!isPasswordValid) {

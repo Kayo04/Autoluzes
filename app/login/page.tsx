@@ -5,7 +5,7 @@ import { useTranslations } from '@/lib/translations';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
-import { LogIn, ArrowRight } from 'lucide-react';
+import { LogIn, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -13,6 +13,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,12 +30,12 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError(t('invalidCredentials'));
       } else {
         router.push('/dashboard');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(t('genericError'));
     } finally {
       setLoading(false);
     }
@@ -54,7 +55,7 @@ export default function LoginPage() {
               {t('loginTitle')}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Welcome back to Autoluzes
+              {t('welcome')}
             </p>
           </div>
 
@@ -89,18 +90,36 @@ export default function LoginPage() {
                   <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5 ml-1">
                     {t('password')}
                   </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-xl border-border bg-secondary/50 px-4 py-3 text-foreground shadow-sm focus:border-primary focus:ring-primary sm:text-sm transition-all hover:bg-secondary"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="block w-full rounded-xl border-border bg-secondary/50 px-4 py-3 text-foreground shadow-sm focus:border-primary focus:ring-primary sm:text-sm transition-all hover:bg-secondary pr-10"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Forgot password?
+                </Link>
               </div>
 
               <button
@@ -108,7 +127,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-full shadow-sm text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                {loading ? 'Signing in...' : t('loginButton')}
+                {loading ? t('signingIn') : t('loginButton')}
                 {!loading && <ArrowRight className="ml-2 w-4 h-4" />}
               </button>
             </form>

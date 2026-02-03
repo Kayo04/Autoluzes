@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from '@/lib/translations';
 import Navbar from '@/components/Navbar';
-import { AlertTriangle, Calendar, Eye, Loader2, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, Calendar, Loader2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface Report {
@@ -29,6 +29,28 @@ export default function ReceivedReportsPage() {
 
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
+
+  const fetchReports = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/reports?type=received&page=${page}&limit=${limit}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setReports(data.reports || []);
+        if (data.pagination) {
+            setTotalPages(data.pagination.pages);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -39,22 +61,7 @@ export default function ReceivedReportsPage() {
     if (status === 'authenticated') {
       fetchReports();
     }
-  }, [status, router]);
-
-  const fetchReports = async () => {
-    try {
-      const response = await fetch('/api/reports');
-      const data = await response.json();
-
-      if (response.ok) {
-        setReports(data.reportsReceived || []);
-      }
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [status, router, fetchReports]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -67,7 +74,14 @@ export default function ReceivedReportsPage() {
     });
   };
 
-  if (loading) {
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  if (loading && page === 1 && reports.length === 0) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -108,7 +122,7 @@ export default function ReceivedReportsPage() {
         </div>
 
         {/* Reports List */}
-        {reports.length === 0 ? (
+        {reports.length === 0 && !loading ? (
           <div className="bg-card border border-border rounded-2xl p-12 text-center">
             <AlertTriangle className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
             <h3 className="text-xl font-semibold text-foreground mb-2">No reports received</h3>
@@ -185,6 +199,29 @@ export default function ReceivedReportsPage() {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Pagination */ }
+        {reports.length > 0 && (
+            <div className="mt-8 flex justify-center items-center gap-4">
+                <button
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1 || loading}
+                    className="p-2 rounded-lg border border-border bg-card hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-sm font-medium">
+                    Page {page} of {totalPages}
+                </span>
+                <button
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages || loading}
+                    className="p-2 rounded-lg border border-border bg-card hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+            </div>
         )}
       </div>
     </div>

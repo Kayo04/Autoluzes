@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 
 export default function HomePage() {
   const t = useTranslations('hero');
+  const tHome = useTranslations('home');
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30 selection:text-primary-foreground">
@@ -56,20 +57,20 @@ export default function HomePage() {
             <div className="grid md:grid-cols-3 gap-12">
               <FeatureCard 
                 icon={<Shield className="w-8 h-8" />}
-                title="Community Safety"
-                description="Help fellow drivers stay safe by alerting them about faulty lights before it becomes a hazard."
+                title={tHome('features.communitySafety.title')}
+                description={tHome('features.communitySafety.description')}
                 delay={0}
               />
               <FeatureCard 
                 icon={<Bell className="w-8 h-8" />}
-                title="Instant Notifications"
-                description="Get notified immediately when someone reports an issue with your vehicle's lights."
+                title={tHome('features.instantNotifications.title')}
+                description={tHome('features.instantNotifications.description')}
                 delay={100}
               />
               <FeatureCard 
                 icon={<Users className="w-8 h-8" />}
-                title="Neighborly Care"
-                description="Not about fines or snitching - it's about looking out for each other on the road."
+                title={tHome('features.neighborlyCare.title')}
+                description={tHome('features.neighborlyCare.description')}
                 delay={200}
               />
             </div>
@@ -84,13 +85,13 @@ export default function HomePage() {
               
               <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
                 <div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">Why join Autoluzes?</h2>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6">{tHome('trust.title')}</h2>
                   <div className="space-y-4">
                     {[
-                      'Free forever for all drivers',
-                      'Anonymous reporting system',
-                      'Real-time alerts via email',
-                      'Contribute to safer roads'
+                      tHome('trust.point1'),
+                      tHome('trust.point2'),
+                      tHome('trust.point3'),
+                      tHome('trust.point4')
                     ].map((item, i) => (
                       <div key={i} className="flex items-center space-x-3">
                         <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500/20 text-green-600 dark:text-green-400 flex items-center justify-center">
@@ -109,10 +110,10 @@ export default function HomePage() {
                   <div className="absolute -bottom-6 -left-6 bg-card border border-border p-6 rounded-2xl shadow-xl max-w-xs">
                     <div className="flex items-center space-x-3 mb-2">
                        <span className="flex h-3 w-3 rounded-full bg-green-500" />
-                       <span className="font-semibold text-sm">Live Activity</span>
+                       <span className="font-semibold text-sm">{tHome('trust.liveActivity')}</span>
                     </div>
                     <p className="text-muted-foreground text-sm">
-                      "Just received an alert about my brake light. Fixed it immediately. Thanks!"
+                      "{tHome('trust.testimonial')}"
                     </p>
                   </div>
                 </div>

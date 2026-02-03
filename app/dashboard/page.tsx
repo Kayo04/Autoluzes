@@ -63,8 +63,8 @@ export default function DashboardPage() {
       // Fetch reports
       const reportsRes = await fetch('/api/reports');
       const reportsData = await reportsRes.json();
-      setReportsReceived(reportsData.reportsReceived || []);
-      setReportsSent(reportsData.reportsSent || []);
+      setReportsReceived((reportsData.reportsReceived || []).slice(0, 3));
+      setReportsSent((reportsData.reportsSent || []).slice(0, 3));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -137,7 +137,9 @@ export default function DashboardPage() {
               <div className="p-2 bg-primary/10 rounded-xl text-primary">
                 <Car className="w-6 h-6" />
               </div>
-              <span>{tVehicle('myVehicles')}</span>
+              <span>
+                {session?.user?.name ? `${session.user.name}'s Vehicles` : tVehicle('myVehicles')}
+              </span>
             </h2>
             <button
               onClick={() => setShowAddVehicle(!showAddVehicle)}
@@ -266,21 +268,25 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {reportsReceived.map((report) => (
-                  <div key={report._id} className="bg-secondary/30 p-5 rounded-2xl border border-border hover:border-red-200 dark:hover:border-red-900/50 transition-colors">
+                  <div 
+                    key={report._id} 
+                    onClick={() => router.push(`/reports/${report._id}`)}
+                    className="bg-secondary/30 p-5 rounded-2xl border border-border hover:border-red-200 dark:hover:border-red-900/50 transition-all cursor-pointer hover:shadow-md active:scale-[0.99] group"
+                  >
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <p className="font-semibold text-foreground flex items-center space-x-2">
-                          <span className="font-mono bg-background px-2 py-1 rounded-md border border-border text-xs">{report.plate}</span>
+                          <span className="font-mono bg-background px-2 py-1 rounded-md border border-border text-xs translate-y-[1px] group-hover:border-red-200 dark:group-hover:border-red-900/50 transition-colors">{report.plate}</span>
                           <span className="text-sm text-muted-foreground">via {report.reporterName}</span>
                         </p>
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap bg-background px-2 py-1 rounded-full border border-border flex items-center">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap bg-background px-2 py-1 rounded-full border border-border flex items-center group-hover:border-red-200 dark:group-hover:border-red-900/50 transition-colors">
                         <Clock className="w-3 h-3 mr-1" />
                         {new Date(report.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     
-                    <div className="bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-100 dark:border-red-900/20">
+                    <div className="bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-100 dark:border-red-900/20 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors">
                       <p className="text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-2">{t('lightsReported')}</p>
                       <ul className="space-y-1">
                         {report.selectedLights.map((light) => (
@@ -326,21 +332,25 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {reportsSent.map((report) => (
-                  <div key={report._id} className="bg-secondary/30 p-5 rounded-2xl border border-border hover:border-green-200 dark:hover:border-green-900/50 transition-colors">
+                  <div 
+                    key={report._id} 
+                    onClick={() => router.push(`/reports/${report._id}`)}
+                    className="bg-secondary/30 p-5 rounded-2xl border border-border hover:border-green-200 dark:hover:border-green-900/50 transition-all cursor-pointer hover:shadow-md active:scale-[0.99] group"
+                  >
                      <div className="flex justify-between items-start mb-3">
                       <div>
                         <p className="font-semibold text-foreground flex items-center space-x-2">
                           <span className="text-sm text-muted-foreground">Reported </span>
-                          <span className="font-mono bg-background px-2 py-1 rounded-md border border-border text-xs">{report.plate}</span>
+                          <span className="font-mono bg-background px-2 py-1 rounded-md border border-border text-xs translate-y-[1px] group-hover:border-green-200 dark:group-hover:border-green-900/50 transition-colors">{report.plate}</span>
                         </p>
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap bg-background px-2 py-1 rounded-full border border-border flex items-center">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap bg-background px-2 py-1 rounded-full border border-border flex items-center group-hover:border-green-200 dark:group-hover:border-green-900/50 transition-colors">
                         <Calendar className="w-3 h-3 mr-1" />
                         {new Date(report.createdAt).toLocaleDateString()}
                       </span>
                     </div>
 
-                    <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-3 border border-green-100 dark:border-green-900/20">
+                    <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-3 border border-green-100 dark:border-green-900/20 group-hover:bg-green-100 dark:group-hover:bg-green-900/20 transition-colors">
                       <p className="text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-wider mb-2">{t('lightsReported')}</p>
                        <ul className="space-y-1">
                         {report.selectedLights.map((light) => (
